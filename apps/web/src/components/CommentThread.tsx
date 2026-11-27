@@ -15,14 +15,21 @@ export function CommentThread({ comments, onAddComment }: CommentThreadProps) {
     setDraft("");
   };
 
+  const countLabel = comments.length === 1 ? "1 comment" : `${comments.length} comments`;
+
   return (
     <div className="comment-thread">
-      <ul>
-        {comments.map((comment) => (
-          <li key={comment.id}>{comment.body}</li>
-        ))}
-      </ul>
-      <input value={draft} onChange={(e) => setDraft(e.target.value)} />
+      <h3 className="comment-thread__count">{countLabel}</h3>
+      {comments.length === 0 ? (
+        <p className="comment-thread__empty">No comments yet.</p>
+      ) : (
+        <ul>
+          {comments.map((comment) => (
+            <li key={comment.id}>{comment.body}</li>
+          ))}
+        </ul>
+      )}
+      <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a comment" />
       <button onClick={submit}>Post</button>
     </div>
   );
