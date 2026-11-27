@@ -36,4 +36,26 @@ export class TeamService {
     const remaining = team.memberIds.filter((id) => id !== userId);
     return this.teamRepository.update(teamId, { memberIds: remaining });
   }
+
+  /** Return the ids of every member on a team. */
+  listMembers(teamId: string): string[] {
+    const team = this.teamRepository.get(teamId);
+    return [...team.memberIds];
+  }
+
+  /** Send an arbitrary announcement to every member of a team. */
+  broadcastAnnouncement(teamId: string, message: string): void {
+    this.teamRepository.get(teamId);
+    this.notificationService.notifyTeam(teamId, message);
+  }
+
+  /** Mark a team as discoverable in the public team directory. */
+  makePublic(teamId: string): Team {
+    return this.teamRepository.update(teamId, { isPublic: true });
+  }
+
+  /** Remove a team from the public directory. */
+  makePrivate(teamId: string): Team {
+    return this.teamRepository.update(teamId, { isPublic: false });
+  }
 }
