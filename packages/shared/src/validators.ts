@@ -26,3 +26,20 @@ export function validateProjectName(name: string): void {
     throw new ValidationError("Project name cannot exceed 120 characters");
   }
 }
+
+/** Raise `ValidationError` if `amount` is negative or not finite. */
+export function validateBudget(amount: number): void {
+  if (!Number.isFinite(amount)) {
+    throw new ValidationError("Budget must be a finite number");
+  }
+  if (amount < 0) {
+    throw new ValidationError("Budget cannot be negative");
+  }
+}
+
+/** Raise `ValidationError` if `threshold` is not a fraction between 0 and 1. */
+export function validateAlertThreshold(threshold: number): void {
+  if (threshold <= 0 || threshold > 1) {
+    throw new ValidationError("Alert threshold must be between 0 and 1");
+  }
+}
