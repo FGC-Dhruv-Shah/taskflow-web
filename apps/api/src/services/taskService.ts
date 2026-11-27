@@ -3,11 +3,13 @@ import { Task } from "../entities/task";
 import { TaskRepository } from "../repositories/taskRepository";
 import { NotificationService } from "./notificationService";
 
+export class TaskReminderError extends Error {}
+
 /** Orchestrates task creation, assignment, and completion. */
 export class TaskService {
   constructor(private taskRepository: TaskRepository, private notificationService: NotificationService) {}
 
-  createTask(projectId: string, title: string, estimateHours: number = 0): Task {
+  createTask(projectId: string, title: string, estimateHours: number = 0, dueDate: Date | null = null): Task {
     const cleanTitle = normalizeText(title);
     if (cleanTitle.length === 0) {
       throw new ValidationError("Task title cannot be empty");
@@ -17,8 +19,32 @@ export class TaskService {
       projectId,
       title: cleanTitle,
       estimateHours,
+      dueDate,
     });
     return this.taskRepository.create(task);
+  }
+
+  /** Return a project's tasks that are overdue as of `asOf`. */
+  getOverdueTasks(projectId: string, asOf: Date): Task[] {
+    return this.taskRepository.listOverdue(projectId, asOf);
+  }
+
+  /** Send an assignee reminder for an overdue task and mark it sent. */
+  sendReminder(taskId: string): Task {
+    let task: Task;
+    try {
+      task = this.taskRepository.get(taskId);
+    } catch (err) {
+      if (err instanceof TaskReminderError) {
+        throw new TaskReminderError(`Task ${taskId} not found`);
+      }
+      throw err;
+    }
+    if (task.assigneeId) {
+      this.notificationService.notifyUser(task.assigneeId, `Reminder: '${task.title}' is overdue`);
+    }
+    task.markReminderSent();
+    return this.taskRepository.update(taskId, { reminderSent: true } as Partial<Task>);
   }
 
   assignTask(taskId: string, userId: string): Task {

@@ -16,6 +16,23 @@ export class TaskRepository extends BaseRepository<Task> {
     return this.listAll().filter((t) => t.projectId === projectId);
   }
 
+  /** Return a project's tasks whose due date has passed. */
+  listOverdue(projectId: string, asOf: Date): Task[] {
+    return this.listByProject(projectId).filter((t) => t.isOverdue(asOf));
+  }
+
+  countOverdue(projectId: string, asOf: Date): number {
+    return this.listOverdue(projectId, asOf).length;
+  }
+
+  /** Return a project's open tasks due within `withinHours` of `asOf`. */
+  listDueSoon(projectId: string, asOf: Date, withinHours: number = 24): Task[] {
+    const horizon = new Date(asOf.getTime() + withinHours * 60 * 60 * 1000);
+    return this.listByProject(projectId).filter(
+      (t) => t.dueDate !== null && t.status !== "completed" && t.dueDate >= asOf && t.dueDate <= horizon
+    );
+  }
+
   /** Set `status` on the task and persist it in a single call. */
   updateTaskStatus(taskId: string, status: string): Task {
     return this.update(taskId, { status, updatedAt: new Date() } as Partial<Task>);
