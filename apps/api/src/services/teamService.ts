@@ -36,4 +36,21 @@ export class TeamService {
     const remaining = team.memberIds.filter((id) => id !== userId);
     return this.teamRepository.update(teamId, { memberIds: remaining });
   }
+
+  /** Return how many members currently belong to a team. */
+  getMemberCount(teamId: string): number {
+    const team = this.teamRepository.get(teamId);
+    return team.memberIds.length;
+  }
+
+  /** Return whether `userId` currently belongs to a team. */
+  isMember(teamId: string, userId: string): boolean {
+    const team = this.teamRepository.get(teamId);
+    return team.memberIds.includes(userId);
+  }
+
+  /** Return every team the given owner currently leads. */
+  listOwnedTeams(ownerId: string): Team[] {
+    return this.teamRepository.listAll().filter((t) => t.ownerId === ownerId);
+  }
 }
