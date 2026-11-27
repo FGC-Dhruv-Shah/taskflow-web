@@ -23,11 +23,16 @@ export class BaseRepository<T extends { id: string }> {
     return entity;
   }
 
-  /** Apply `fields` onto the stored entity and persist the change in one step. */
+  /** Apply `fields` onto the stored entity. */
   update(id: string, fields: Partial<T>): T {
     const entity = this.get(id);
     Object.assign(entity as object, fields);
-    this.store.set(id, entity);
+    return entity;
+  }
+
+  /** Write an entity into the store. */
+  persist(entity: T): T {
+    this.store.set(entity.id, entity);
     return entity;
   }
 
@@ -37,6 +42,14 @@ export class BaseRepository<T extends { id: string }> {
 
   listAll(): T[] {
     return Array.from(this.store.values());
+  }
+
+  exists(id: string): boolean {
+    return this.store.has(id);
+  }
+
+  count(): number {
+    return this.store.size;
   }
 
   newId(): string {

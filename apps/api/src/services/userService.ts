@@ -2,10 +2,11 @@ import { createHash } from "crypto";
 import { normalizeText, validateEmail, validatePasswordStrength, ValidationError } from "@taskflow/shared";
 import { User } from "../entities/user";
 import { UserRepository } from "../repositories/userRepository";
+import { AuditService } from "./auditService";
 
 /** Orchestrates user registration and authentication. */
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository, private auditService: AuditService) {}
 
   registerUser(name: string, email: string, password: string): User {
     validateEmail(email);
@@ -40,6 +41,20 @@ export class UserService {
       throw new ValidationError("Name cannot be empty");
     }
     return this.userRepository.update(userId, { name: cleanName });
+  }
+
+  /** Mark a user account as inactive. */
+  deactivateUser(userId: string): User {
+    const user = this.userRepository.update(userId, { isActive: false });
+    this.auditService.recordEvent("user", userId, "deactivated");
+    return user;
+  }
+
+  /** Mark a previously-deactivated user account as active again. */
+  reactivateUser(userId: string): User {
+    const user = this.userRepository.update(userId, { isActive: true });
+    this.auditService.recordEvent("user", userId, "reactivated");
+    return user;
   }
 
   private hashPassword(password: string): string {
