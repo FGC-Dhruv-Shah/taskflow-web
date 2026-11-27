@@ -1,0 +1,16 @@
+{
+  "name": "taskflow-web",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "tsc --build"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5"
+  }
+}
