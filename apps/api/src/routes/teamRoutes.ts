@@ -21,3 +21,22 @@ teamRoutes.delete("/teams/:teamId/members/:userId", (req, res) => {
   const team = teamService.removeMember(req.params.teamId, req.params.userId);
   res.json(team.toDict());
 });
+
+teamRoutes.get("/teams/:teamId/members", (req, res) => {
+  res.json(teamService.listMembers(req.params.teamId));
+});
+
+teamRoutes.post("/teams/:teamId/announcements", (req, res) => {
+  teamService.broadcastAnnouncement(req.params.teamId, req.body.message);
+  res.status(204).send();
+});
+
+teamRoutes.post("/teams/:teamId/make-public", (req, res) => {
+  const team = teamService.makePublic(req.params.teamId);
+  res.json(team.toDict());
+});
+
+teamRoutes.post("/teams/:teamId/make-private", (req, res) => {
+  const team = teamService.makePrivate(req.params.teamId);
+  res.json(team.toDict());
+});

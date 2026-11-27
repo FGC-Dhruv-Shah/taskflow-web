@@ -5,15 +5,28 @@ export class Team {
   slug: string;
   ownerId: string;
   memberIds: string[];
+  isPublic: boolean;
   createdAt: Date;
 
-  constructor(params: { id: string; name: string; slug: string; ownerId: string; memberIds?: string[] }) {
+  constructor(params: {
+    id: string;
+    name: string;
+    slug: string;
+    ownerId: string;
+    memberIds?: string[];
+    isPublic?: boolean;
+  }) {
     this.id = params.id;
     this.name = params.name;
     this.slug = params.slug;
     this.ownerId = params.ownerId;
     this.memberIds = params.memberIds ?? [params.ownerId];
+    this.isPublic = params.isPublic ?? false;
     this.createdAt = new Date();
+  }
+
+  isOwner(userId: string): boolean {
+    return this.ownerId === userId;
   }
 
   toDict() {
@@ -22,6 +35,7 @@ export class Team {
       name: this.name,
       slug: this.slug,
       memberIds: [...this.memberIds],
+      isPublic: this.isPublic,
     };
   }
 }
