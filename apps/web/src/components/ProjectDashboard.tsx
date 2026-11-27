@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCurrency } from "@taskflow/shared";
 import { useProject } from "../hooks/useProjects";
 import { TaskList } from "./TaskList";
 
@@ -14,9 +15,7 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
   return (
     <section className="project-dashboard">
       <h2>{project.name}</h2>
-      <p>
-        Budget: {project.budget} {project.currency}
-      </p>
+      <p>Budget: {formatCurrency(project.budget, project.currency)}</p>
       <TaskList projectId={projectId} />
     </section>
   );
